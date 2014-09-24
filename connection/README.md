@@ -9,3 +9,7 @@ To connect to MongoDB through the terminal, use `mongo`.  Without the `--nodb` o
 The examples here use the database *lets-get-m*.  To poke around, you'd use the following.
 
     mongo localhost/lets-get-m
+
+Even better, you can omit localhost because it is the default.
+
+    mongo lets-get-m
