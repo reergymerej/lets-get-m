@@ -1,0 +1,22 @@
+{
+  "name": "lets-get-m",
+  "version": "1.0.0",
+  "description": "This repo contains code to go along with [my posts about Mongoose](http://mean-greer.blogspot.com/search/label/mongoose).",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://reergymerej@github.com/reergymerej/lets-get-m.git"
+  },
+  "author": "Jeremy Greer <jeremy.greer.atl@gmail.com> (http://jeremygreer.herokuapp.com/)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/reergymerej/lets-get-m/issues"
+  },
+  "homepage": "https://github.com/reergymerej/lets-get-m",
+  "dependencies": {
+    "mongoose": "^3.8.16"
+  }
+}
