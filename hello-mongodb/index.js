@@ -7,13 +7,11 @@ exports.run = function (connection, models) {
         name: 'George Washington'
     });
 
-    gw.save(function (err, run) {
+    gw.save(function (err, dude) {
         if (err) {
-            throw err;
+            console.error(err);
         } else {
-            console.log(run);
+            console.log(dude);
         }
-
-        console.log('done');
     });
 };
