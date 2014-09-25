@@ -1,6 +1,3 @@
-*Check out the [accompanying Github repo](https://github.com/reergymerej/lets-get-m) to these posts about MongoDB/Mongoose.*
-***
-
 Connecting to MongoDB with Mongoose is really easy.
 
 ```js
@@ -58,3 +55,6 @@ mongo whatever.com:12345/some-db
 Now you can connect to your MongoDB in a few different ways.  Since we haven't covered anything else yet, the final thing you need to learn is how to disconnect.  Baby steps, right?
 
 You can close the connection with `exit` or <kbd>ctrl</kbd> + <kbd>c</kbd>.
+
+***
+*Check out the [accompanying Github repo](https://github.com/reergymerej/lets-get-m) to these posts about MongoDB/Mongoose.*
