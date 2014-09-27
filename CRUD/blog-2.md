@@ -48,5 +48,7 @@ TODO: Resume here.
 ## Delete
 
 ## References
-
 * [MongoDB Update](http://docs.mongodb.org/manual/core/write-operations-introduction/#update)
+
+***
+*Check out the [accompanying Github repo](https://github.com/reergymerej/lets-get-m) to these posts about MongoDB/Mongoose.*
