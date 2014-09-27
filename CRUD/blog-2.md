@@ -1,5 +1,3 @@
-# MongoDB CRUD: Part II
-
 Welcome to part two of our excellent adventure.  Before we resume, let's seed our database with some more documents to play with.
 
 ```js
@@ -14,7 +12,7 @@ while (max--) {
 
 ## Update
 
-Now that we've got a bunch of Oreos in our `stomach` collection, I don't think the [Sweetwater](http://sweetwaterbrew.com/) we added in [Part I](http://mean-greer.blogspot.com/2014/09/mongodb-crud-part-i.html) was such a good idea.  Let's change it to something more complimentary.
+Now that we've got a bunch of Oreos in our `stomach` collection, I don't think the [Sweetwater](http://sweetwaterbrew.com/) we added in [Part I](http://mean-greer.blogspot.com/2014/09/mongodb-crud-part-i.html) was such a good idea.  Let's change it.
 
 1. Find the documents we want to update.  We'll do that with another [query](http://docs.mongodb.org/manual/reference/glossary/#term-query).
 2. Specify the new values.  That's done with the [update parameter](http://docs.mongodb.org/manual/reference/method/db.collection.update/#update-parameter).
@@ -49,7 +47,7 @@ db.stomach.find({
 }
 ```
 
-What if we want to [completely replace the fields](http://docs.mongodb.org/manual/reference/method/db.collection.update/#replace-a-document-entirely) in the document, though?  Who wants rootbeer with cookies?  Let's change it to a milk document.
+What if we want to [completely replace the fields](http://docs.mongodb.org/manual/reference/method/db.collection.update/#replace-a-document-entirely) in the document, though?  Who wants rootbeer with cookies?  Let's make it more complimentary to the other documents in the collection.
 
 ```js
 db.stomach.update(
@@ -69,7 +67,7 @@ db.stomach.update(
 );
 ```
 
-By specifying a plain object as the update parameter instead of [update operators](http://docs.mongodb.org/manual/reference/operator/update/#id1), we've completely changed the document returned by the query.
+By specifying a plain object as the update parameter instead of [update operators](http://docs.mongodb.org/manual/reference/operator/update/#id1), we've completely changed the document.
 
 ```sh
 > db.stomach.find({ drink: 'milk' }).pretty();
@@ -146,11 +144,23 @@ By default, `update` only modifies a single document.  With `multi`, we can make
 
 ## Delete
 
+Now we've got a `stomach` collection full of berry cookies and milk and the anchovy pizza isn't really sitting well.  Let's barf it up.
 
+```js
+db.stomach.remove({
+    anchovies: {
+        $exists: true
+    } 
+});
+```
+
+That should seem pretty intuitive by now.
 
 ## References
 * [MongoDB Update](http://docs.mongodb.org/manual/core/write-operations-introduction/#update)
 * [MongoDB update operators](http://docs.mongodb.org/manual/reference/operator/update/#id1)
+* [MongoDB Remove](http://docs.mongodb.org/manual/core/write-operations-introduction/#remove)
+* [MongoDB db.collection.remove()](http://docs.mongodb.org/manual/reference/method/db.collection.remove/#db.collection.remove)
 
 ***
 *Check out the [accompanying Github repo](https://github.com/reergymerej/lets-get-m) to these posts about MongoDB/Mongoose.*
