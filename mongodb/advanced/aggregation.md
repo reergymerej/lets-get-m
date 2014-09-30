@@ -94,7 +94,11 @@ Our documents don't have a `$color` field; they have `color`.  What is this magi
 
 This is a [field path](http://docs.mongodb.org/manual/reference/glossary/#term-field-path).  Use this to access the current document's field values from inside an aggregation.
 
+## How to Aggregate
 
+1. Pick an [aggregation stage](http://docs.mongodb.org/manual/reference/operator/aggregation-pipeline/). - `$group`
+
+2. Pick an expression for the _id field.
 
 
 
