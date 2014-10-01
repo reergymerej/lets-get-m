@@ -9,24 +9,31 @@ var dudeSchema = mongoose.Schema({
     isMale: Boolean
 });
 
-dudeSchema.statics.getTopX = function (x, callback) {
+var getXByY = function (x, y, callback) {
     var sortData = {};
-    sortData[x] = -1;
+    sortData[x] = y;
 
-    this.aggregate([
-        // sort by x
-        { $sort: sortData },
+    this.aggregate(
+        [
+            // sort by x
+            { $sort: sortData },
 
-        // limit
-        { $limit: 1 }
-    ], function (err, dude) {
-        if (err) {
-            err = 'unable to find dude with top ' + x;
-        }
-
-        callback(err, dude);
-    });
+            // limit
+            { $limit: 1 }
+        ],
+        callback
+    );
 };
+
+dudeSchema.statics.getTopX = function (x, callback) {
+    return getXByY.apply(this, [x, -1, callback]);
+};
+
+dudeSchema.statics.getBottomX = function (x, callback) {
+    return getXByY.apply(this, [x, 1, callback]);
+};
+
+dudeSchema.statics.getXByY = getXByY;
 
 
 exports.Dude = mongoose.model('Dude', dudeSchema);

@@ -35,17 +35,27 @@ exports.run = function () {
 
     models.Dude.getTopX('age', function (err, dude) {
         console.log('top age');
-        console.log(err, dude);
+        console.log(dude);
     });
 
     models.Dude.getTopX('name', function (err, dude) {
         console.log('top name');
-        console.log(err, dude);
+        console.log(dude);
     });
 
     models.Dude.getTopX('height', function (err, dude) {
         console.log('top height');
-        console.log(err, dude);
+        console.log(dude);
+    });
+
+    models.Dude.getBottomX('age', function (err, dude) {
+        console.log('bottom age');
+        console.log(dude);
+    });
+
+    models.Dude.getXByY('name', 1, function (err, dude) {
+        console.log('lowest name');
+        console.log(dude);
     });
 
 // var db = {};
