@@ -72,45 +72,185 @@ db.people.aggregate([
 }
 ```
 
-Not so bad, right?  We pass an array of the aggregations we want to perform, each of which produces a new collection of documents.  This process is the [aggregation pipeline](http://docs.mongodb.org/manual/core/aggregation-pipeline/).
+### Whoa, Nellie!
 
-Since each aggregation produces a new collection of documents, we have to specify what those documents look like.  
+Aggregation can be confusing when you first run into it, which usually happens when trying to figure out how to do grouping.  That's why I've shown `$group` above, but it's is actually one of the trickier [aggregation stages](http://docs.mongodb.org/manual/reference/operator/aggregation-pipeline/).
 
-* `_id` - the aggregate's `$color` value
-* `count` - the sum of `$color` occurrences
+I suggest slowing down and learning how aggregation works at a high level to allow the concepts to sink in.  Once you get that, the specifics are easily demystified by referring to the docs.
 
-`_id` is mandatory, since documents always have an `_id`.  If we would rather let MongoDB create one, though, we could have set the value to `null`.
+## How Does Aggregation Work?
 
-### Accumulators
+Simply put, aggregation takes a collection of documents and turns them into a new collection of documents.  Each of these transformations is referred to as an *aggregation stage*.  How each *aggregation stage* works varies, but you can figure them out easily once you understand what you're looking at.
 
-[Accumulators](http://docs.mongodb.org/manual/reference/operator/aggregation/group/#accumulator-operator) describe how the aggregation will gather up data to create the fields in the new documents.  We want a `count` field, so we have to specify how it will be created.  In our example, we used the `$sum` accumulator.
+Aggregation works by passing a collection through a series of stages, each changing the collection and passing it off to the next stage.  This is the [aggregation pipeline](http://docs.mongodb.org/manual/core/aggregation-pipeline/).
 
-### Expressions
+**An Example**
 
-RESUME HERE: Elaborate on how fields in the new documents are described.
+```js
+db.people.aggregate([
+    // Change the documents in people by sorting.
+    { $sort: { name: -1 } },
 
+    // Change the sorted documents from the previous stage
+    // by limiting them to the first 3.
+    { $limit: 3 },
 
-Our documents don't have a `$color` field; they have `color`.  What is this magic?
+    // Change which fields are present in the
+    // 3 sorted documents.
+    { $project: { _id: 0, name: 1, color: 1 } }
+]);
 
-This is a [field path](http://docs.mongodb.org/manual/reference/glossary/#term-field-path).  Use this to access the current document's field values from inside an aggregation.
+{
+    "result" : [
+        {
+            "name" : "Thomas",
+            "color" : "Violet"
+        },
+        {
+            "name" : "Thomas",
+            "color" : "Green"
+        },
+        {
+            "name" : "Thomas",
+            "color" : "Yellow"
+        }
+    ],
+    "ok" : 1
+}
+```
 
-## How to Aggregate
+### What is the Result?
 
-1. Pick an [aggregation stage](http://docs.mongodb.org/manual/reference/operator/aggregation-pipeline/). - `$group`
+This makes sense, but what is this new object structure?  It's not a collection like we saw in the [CRUD post](http://mean-greer.blogspot.com/2014/09/mongodb-crud-part-i.html).  According to [TFM](http://docs.mongodb.org/manual/reference/method/db.collection.aggregate/#cursor-behavior), it is a [cursor](http://docs.mongodb.org/manual/core/cursors/#read-operations-cursors).
 
-2. Pick an expression for the _id field.
+*Remember, in mongo, the shell interface, cursors are printed out automatically when you don't assign the operation to a variable.*
 
+So, it says it's a cursor, and it has the documents in `result`, but there's definitely something different.  Let's compare the keys in the two different cursor types.
 
+```js
+var findCursor = db.people.find();
+var aggregateCursor = db.people.aggregate([{ $limit: 10 }]);
 
+Object.keys(findCursor).sort();
 
+[
+    "_batchSize",
+    "_collection",
+    "_cursor",
+    "_db",
+    "_fields",
+    "_limit",
+    "_mongo",
+    "_ns",
+    "_numReturned",
+    "_options",
+    "_query",
+    "_skip",
+    "_special"
+]
 
-## Map-Reduce?
-http://docs.mongodb.org/manual/core/aggregation-introduction/#map-reduce
+Object.keys(aggregateCursor).sort();
+
+[ "ok", "result" ]
+```
+
+Now, those don't appear to be the same, but cursors warrant their own post.
+
+### Tips for Working Through Aggregation
+
+In my first draft, I got right into explaining each of the rabbit holes in the aggregation stages.  That's dumb.  Instead, I would like to teach you to fish.
+
+#### Plan it Out
+
+Figure out what it is you want to do, like this.
+
+```js
+db.people.aggregate([
+    // group by color
+
+    // sort by count of color
+
+    // pick the top 2
+
+    // remove all the fields except the color
+]);
+```
+
+#### Pick the Stages
+
+There are only 10 [aggregation stages](http://docs.mongodb.org/manual/reference/operator/aggregation/).  Read the descriptions to see which one(s) you want to you use.
+
+```js
+db.people.aggregate([
+    // group by color
+    { $group: {} },
+
+    // sort by count of color
+    { $sort: {} },
+
+    // pick the top 2
+    { $limit: {} },
+
+    // remove all the fields except the color
+    { $project: {} }
+]);
+```
+
+#### Set the Stages Up
+
+Now that you know what stages you'll use, go through them one-by-one and read the docs.  With our cheatsheet, you can keep your eyes on the prize.  It's less likely to you'll be overwhelmed or distracted by all the new concepts and terminology that come along with aggregation.
+
+Right at the top of each stage's docs, it shows the structure we need to use.  Additionally, they include lots of detail and several examples.  *Just fight the temptation to get distracted.*
+
+If you can, you should end up with something like this.
+
+```js
+db.people.aggregate([
+    // group by color
+    {
+        $group: {
+            _id: '$color',
+            count: {
+                $sum: 1
+            }
+        }
+    },
+
+    // sort by count of color
+    { $sort: { count: -1 } },
+
+    // pick the top 2
+    { $limit: 2 },
+
+    // remove all the fields except the color
+    {
+        $project: {
+            _id: 0,
+            color: '$_id'
+        }
+    }
+]);
+
+{
+    "result" : [
+        {
+            "color" : "Orange"
+        },
+        {
+            "color" : "Red"
+        }
+    ],
+    "ok" : 1
+}
+```
+
+================================================
 
 ## References
-
-* http://docs.mongodb.org/manual/core/aggregation-introduction/
-* http://www.mkyong.com/mongodb/mongodb-aggregate-and-group-example/
-* http://docs.mongodb.org/manual/reference/operator/aggregation/group/#accumulator-operator
-* http://docs.mongodb.org/manual/meta/aggregation-quick-reference/#aggregation-expressions
-* http://docs.mongodb.org/manual/reference/operator/aggregation/group/#pipe._S_group
+* [Basic read operations](http://mean-greer.blogspot.com/2014/09/mongodb-crud-part-i.html)
+* [aggregation stages](http://docs.mongodb.org/manual/reference/operator/aggregation-pipeline/)
+* [aggregation pipeline](http://docs.mongodb.org/manual/core/aggregation-pipeline/)
+* [CRUD post](http://mean-greer.blogspot.com/2014/09/mongodb-crud-part-i.html)
+* [TFM](http://docs.mongodb.org/manual/reference/method/db.collection.aggregate/#cursor-behavior)
+* [cursor](http://docs.mongodb.org/manual/core/cursors/#read-operations-cursors)
+* [aggregation stages](http://docs.mongodb.org/manual/reference/operator/aggregation/)
